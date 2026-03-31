@@ -1,33 +1,10 @@
 import { useState, useEffect } from 'react'
-import { getMethodForTimezone } from '../pages/PrayerReminder/methodMap'
+import { getMethodId } from '../pages/PrayerReminder/methodMap'
 import { cacheGet, cacheSet } from '../utils/sessionCache'
 
-const SCRAPPER_BASE = 'https://muslimpro-scrapper.lleans.dev'
-const NOMINATIM_BASE = 'https://nominatim.openstreetmap.org/reverse'
-
-/**
- * Reverse-geocode lat/lon → city name via Nominatim.
- * Returns the best available city-level name.
- */
-async function reverseGeocode(lat, lon) {
-  const url = `${NOMINATIM_BASE}?lat=${lat}&lon=${lon}&format=json&addressdetails=1`
-  const res = await fetch(url, {
-    headers: { 'Accept-Language': 'en', 'User-Agent': 'travel-halal-app/1.0' },
-  })
-  if (!res.ok) throw new Error('Nominatim error')
-  const data = await res.json()
-  const addr = data.address || {}
-  // Prefer city → town → village → county → state
-  return (
-    addr.city      ||
-    addr.town      ||
-    addr.village   ||
-    addr.county    ||
-    addr.state     ||
-    data.display_name?.split(',')[0] ||
-    'Kuala Lumpur'
-  )
-}
+// Aladhan API — free, CORS-safe, lat/lon directly (no city lookup needed)
+// Docs: https://aladhan.com/prayer-times-api
+const ALADHAN_BASE = 'https://api.aladhan.com/v1/timings'
 
 /**
  * Client-side Hijri date calculation (Kuwaiti algorithm).
@@ -86,11 +63,11 @@ export function usePrayerTimes(coords) {
   useEffect(() => {
     if (!coords) return
 
-    const tz        = Intl.DateTimeFormat().resolvedOptions().timeZone
-    const method    = getMethodForTimezone(tz)
-    const today     = new Date()
-    const dateKey   = today.toISOString().slice(0, 10)
-    const cacheKey  = `prayer_mp_${dateKey}_${coords.latitude.toFixed(2)}_${coords.longitude.toFixed(2)}`
+    const tz       = Intl.DateTimeFormat().resolvedOptions().timeZone
+    const methodId = getMethodId(tz)
+    const today    = new Date()
+    const dateKey  = today.toISOString().slice(0, 10)
+    const cacheKey = `prayer_al_${dateKey}_${coords.latitude.toFixed(2)}_${coords.longitude.toFixed(2)}`
 
     const cached = cacheGet(cacheKey)
     if (cached) {
@@ -104,18 +81,24 @@ export function usePrayerTimes(coords) {
     setLoading(true)
     setError(null)
 
-    reverseGeocode(coords.latitude, coords.longitude)
-      .then(city => {
-        const url = `${SCRAPPER_BASE}/${encodeURIComponent(city)}?calcMethod=${method}`
-        return fetch(url).then(r => {
-          if (!r.ok) throw new Error(`Prayer API error (${r.status})`)
-          return r.json()
-        })
+    // Aladhan: GET /v1/timings?latitude=X&longitude=Y&method=ID
+    // Returns data.timings: { Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha, ... }
+    const url = `${ALADHAN_BASE}?latitude=${coords.latitude}&longitude=${coords.longitude}&method=${methodId}`
+    fetch(url)
+      .then(r => {
+        if (!r.ok) throw new Error(`Prayer API error (${r.status})`)
+        return r.json()
       })
       .then(data => {
-        // Muslim Pro Scrapper returns flat prayer time keys: Fajr, Zuhr, Asr, Maghrib, Isha
-        // Times are already in local timezone — no conversion needed
-        const times = data.prayer ?? data
+        // Aladhan returns "Dhuhr" — remap to "Zuhr" for display consistency
+        const raw = data.data.timings
+        const times = {
+          Fajr:    raw.Fajr,
+          Zuhr:    raw.Dhuhr,
+          Asr:     raw.Asr,
+          Maghrib: raw.Maghrib,
+          Isha:    raw.Isha,
+        }
         const hijri = toHijri(today)
         cacheSet(cacheKey, { times, hijri }, 6 * 60 * 60 * 1000)
         setTimes(times)

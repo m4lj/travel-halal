@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react'
 import { cacheGet, cacheSet } from '../utils/sessionCache'
 
-// Primary + mirror fallback for Overpass API
+// Only overpass-api.de supports Access-Control-Allow-Origin: * for browser fetches.
+// kumi.systems and maps.mail.ru do NOT send CORS headers — removed.
 const OVERPASS_ENDPOINTS = [
   'https://overpass-api.de/api/interpreter',
-  'https://overpass.kumi.systems/api/interpreter',
-  'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
 ]
 
 /**
- * Fetch with retry across multiple Overpass mirrors.
+ * Fetch with retry across Overpass endpoints.
  * Tries each endpoint once before giving up.
  */
 async function fetchOverpass(query) {
@@ -20,7 +19,7 @@ async function fetchOverpass(query) {
         method:  'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body:    `data=${encodeURIComponent(query)}`,
-        signal:  AbortSignal.timeout(30000), // 30s per endpoint
+        signal:  AbortSignal.timeout(15000), // 15s timeout
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const json = await res.json()
