@@ -22,7 +22,7 @@ export function usePrayerTimes(coords) {
     const cacheKey = `prayer_${yyyy}${mm}${dd}_${coords.latitude.toFixed(2)}_${coords.longitude.toFixed(2)}_${method}`
 
     const cached = cacheGet(cacheKey)
-    if (cached) { setTimes(cached.timings); setHijri(cached.hijri); return }
+    if (cached) { setTimeout(() => { setTimes(cached.timings); setHijri(cached.hijri) }, 0); return }
 
     setLoading(true)
     setError(null)

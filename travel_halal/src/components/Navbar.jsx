@@ -15,18 +15,18 @@ export default function Navbar() {
           ☪ travel_Halal
         </NavLink>
         <ul className="flex gap-1 sm:gap-6">
-          {links.map(({ to, label, Icon }) => (
-            <li key={to}>
+          {links.map((link) => (
+            <li key={link.to}>
               <NavLink
-                to={to}
+                to={link.to}
                 className={({ isActive }) =>
                   `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all
                    hover:text-islamic-gold hover:bg-white/10
                    ${isActive ? 'text-islamic-gold bg-white/10' : ''}`
                 }
               >
-                <Icon className="text-base" />
-                <span className="hidden sm:inline">{label}</span>
+                <link.Icon className="text-base" />
+                <span className="hidden sm:inline">{link.label}</span>
               </NavLink>
             </li>
           ))}

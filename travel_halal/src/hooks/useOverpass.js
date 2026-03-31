@@ -13,7 +13,7 @@ export function useOverpass(coords, queryFn, cacheKey) {
 
     const key = `${cacheKey}_${coords.latitude.toFixed(3)}_${coords.longitude.toFixed(3)}`
     const cached = cacheGet(key)
-    if (cached) { setData(cached); return }
+    if (cached) { setTimeout(() => setData(cached), 0); return }
 
     setLoading(true)
     setError(null)

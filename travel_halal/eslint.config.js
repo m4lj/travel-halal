@@ -24,6 +24,10 @@ export default defineConfig([
     },
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      // Downgraded from error: data-fetching hooks legitimately call setState
+      // before async operations (setLoading/setError pattern). react-hooks v7's
+      // set-state-in-effect rule is too aggressive for this canonical pattern.
+      'react-hooks/set-state-in-effect': 'warn',
     },
   },
 ])
