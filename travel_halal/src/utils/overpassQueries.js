@@ -3,9 +3,7 @@ export function mosqueQuery(lat, lon, radius = 5000) {
     [out:json][timeout:28];
     (
       node["amenity"="place_of_worship"]["religion"="muslim"](around:${radius},${lat},${lon});
-      node["amenity"="place_of_worship"]["religion"="Islam"](around:${radius},${lat},${lon});
       way["amenity"="place_of_worship"]["religion"="muslim"](around:${radius},${lat},${lon});
-      way["amenity"="place_of_worship"]["religion"="Islam"](around:${radius},${lat},${lon});
     );
     out center tags;
   `.trim()

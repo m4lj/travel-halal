@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-// Muslim Pro Scrapper uses 'Zuhr' (not 'Dhuhr'), no Sunrise
+// Aladhan returns Dhuhr — remapped to Zuhr in usePrayerTimes for display
 const PRAYERS = ['Fajr', 'Zuhr', 'Asr', 'Maghrib', 'Isha']
 
 function timeToSeconds(timeStr) {
