@@ -2,6 +2,7 @@ import { useGeolocation }  from '../../hooks/useGeolocation'
 import { useOverpass }     from '../../hooks/useOverpass'
 import { mosqueQuery }     from '../../utils/overpassQueries'
 import { haversine }       from '../../utils/haversine'
+import { SkeletonList }    from '../../components/SkeletonCard'
 import LoadingSpinner      from '../../components/LoadingSpinner'
 import ErrorBanner         from '../../components/ErrorBanner'
 import MosqueMap           from './MosqueMap'
@@ -42,7 +43,7 @@ export default function MosqueFinder() {
         <MosqueMap mosques={mosques} userCoords={coords} loading={loading} />
       </div>
 
-      {loading && <LoadingSpinner message="Fetching nearby mosques…" />}
+      {loading && <SkeletonList count={6} label="Fetching nearby mosques…" />}
       {error   && <ErrorBanner message={error} />}
       {!loading && !error && <MosqueList mosques={mosques} />}
     </div>

@@ -2,6 +2,7 @@ import { useGeolocation }  from '../../hooks/useGeolocation'
 import { useOverpass }     from '../../hooks/useOverpass'
 import { halalFoodQuery }  from '../../utils/overpassQueries'
 import { haversine }       from '../../utils/haversine'
+import { SkeletonList }    from '../../components/SkeletonCard'
 import LoadingSpinner      from '../../components/LoadingSpinner'
 import ErrorBanner         from '../../components/ErrorBanner'
 import FoodMap             from './FoodMap'
@@ -56,7 +57,7 @@ export default function HalalFood() {
         <FoodMap restaurants={restaurants} userCoords={coords} />
       </div>
 
-      {loading && <LoadingSpinner message="Finding halal restaurants near you…" />}
+      {loading && <SkeletonList count={6} label="Finding halal restaurants near you…" />}
       {error   && <ErrorBanner message={error} />}
       {!loading && <FoodList restaurants={restaurants} />}
 
