@@ -4,6 +4,7 @@ import { cacheGet, cacheSet } from '../utils/sessionCache'
 
 // Aladhan API — free, CORS-safe, lat/lon directly (no city lookup needed)
 // Docs: https://aladhan.com/prayer-times-api
+// Endpoint: /v1/timings/{UNIX_TIMESTAMP} — date-less base URL returns 302 redirect
 const ALADHAN_BASE = 'https://api.aladhan.com/v1/timings'
 
 export function usePrayerTimes(coords) {
@@ -33,21 +34,23 @@ export function usePrayerTimes(coords) {
     setLoading(true)
     setError(null)
 
-    // Aladhan: GET /v1/timings?latitude=X&longitude=Y&method=ID
+    // Aladhan: GET /v1/timings/{UNIX_TIMESTAMP}?latitude=X&longitude=Y&method=ID
+    // Using timestamp-based endpoint avoids the 302 redirect from the bare base URL
     // Returns data.timings: { Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha, ... }
     // Returns data.date.hijri: { day, month: { en }, year }
-    const url = `${ALADHAN_BASE}?latitude=${coords.latitude}&longitude=${coords.longitude}&method=${methodId}`
+    const unixTs = Math.floor(today.getTime() / 1000)
+    const url = `${ALADHAN_BASE}/${unixTs}?latitude=${coords.latitude}&longitude=${coords.longitude}&method=${methodId}`
     fetch(url)
       .then(r => {
         if (!r.ok) throw new Error(`Prayer API error (${r.status})`)
         return r.json()
       })
       .then(data => {
-        // Aladhan returns "Dhuhr" — remap to "Zuhr" for display consistency
         const raw = data.data.timings
         const times = {
           Fajr:    raw.Fajr,
-          Zuhr:    raw.Dhuhr,
+          Sunrise: raw.Sunrise,
+          Dhuhr:   raw.Dhuhr,
           Asr:     raw.Asr,
           Maghrib: raw.Maghrib,
           Isha:    raw.Isha,

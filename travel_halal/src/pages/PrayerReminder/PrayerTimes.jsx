@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 
-// Aladhan returns Dhuhr — remapped to Zuhr in usePrayerTimes for display
-const PRAYER_ORDER = ['Fajr', 'Zuhr', 'Asr', 'Maghrib', 'Isha']
+// Aladhan returns Dhuhr — shown as "Dhuhr" to match standard naming
+const PRAYER_ORDER = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']
 const ICONS = {
   Fajr:    '🌙',
-  Zuhr:    '☀️',
+  Sunrise: '🌅',
+  Dhuhr:   '☀️',
   Asr:     '🌤️',
   Maghrib: '🌇',
   Isha:    '⭐',

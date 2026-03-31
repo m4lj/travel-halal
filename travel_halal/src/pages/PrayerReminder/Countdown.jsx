@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 
-// Aladhan returns Dhuhr — remapped to Zuhr in usePrayerTimes for display
-const PRAYERS = ['Fajr', 'Zuhr', 'Asr', 'Maghrib', 'Isha']
+// Aladhan returns Dhuhr — shown as "Dhuhr" to match standard naming
+// Sunrise is shown on the times card but excluded from the countdown
+// (it's not a fard prayer — no need to "count down" to it)
+const PRAYERS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']
 
 function timeToSeconds(timeStr) {
   if (!timeStr) return 0

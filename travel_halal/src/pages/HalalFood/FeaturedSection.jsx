@@ -1,18 +1,43 @@
+import { useState } from 'react'
 import { FaStar, FaExternalLinkAlt } from 'react-icons/fa'
-import { FEATURED_RESTAURANTS } from './featuredData'
+import { FEATURED_RESTAURANTS, FILTER_COUNTRIES } from './featuredData'
 
 export default function FeaturedSection() {
+  const [activeCountry, setActiveCountry] = useState('All')
+
+  const filtered = activeCountry === 'All'
+    ? FEATURED_RESTAURANTS
+    : FEATURED_RESTAURANTS.filter(r => r.country === activeCountry)
+
   return (
     <section className="mt-4 pt-6 border-t border-gray-200">
       <div className="flex items-center gap-2 mb-1">
         <FaStar className="text-islamic-gold text-xl" />
-        <h2 className="text-xl font-bold text-gray-800">Featured & Viral Halal Spots</h2>
+        <h2 className="text-xl font-bold text-gray-800">Featured &amp; Viral Halal Spots</h2>
       </div>
       <p className="text-sm text-gray-500 mb-4">
         Globally renowned halal restaurants, manually curated and verified.
       </p>
+
+      {/* Country filter pills */}
+      <div className="flex flex-wrap gap-2 mb-5">
+        {FILTER_COUNTRIES.map(c => (
+          <button
+            key={c}
+            onClick={() => setActiveCountry(c)}
+            className={`px-3 py-1 rounded-full text-xs font-medium transition-all border
+              ${activeCountry === c
+                ? 'bg-islamic-green text-white border-islamic-green'
+                : 'bg-white text-gray-600 border-gray-300 hover:border-islamic-green hover:text-islamic-green'
+              }`}
+          >
+            {c}
+          </button>
+        ))}
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {FEATURED_RESTAURANTS.map(r => (
+        {filtered.map(r => (
           <div
             key={r.id}
             className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm
@@ -44,6 +69,12 @@ export default function FeaturedSection() {
           </div>
         ))}
       </div>
+
+      {filtered.length === 0 && (
+        <p className="text-center text-sm text-gray-400 py-8">
+          No featured spots for this country yet — check back soon!
+        </p>
+      )}
     </section>
   )
 }
