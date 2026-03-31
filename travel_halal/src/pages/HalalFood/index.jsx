@@ -52,7 +52,7 @@ export default function HalalFood() {
       </div>
 
       {/* Map */}
-      <div className="rounded-2xl overflow-hidden shadow-md mb-6" style={{ height: '400px' }}>
+      <div className="rounded-2xl overflow-hidden shadow-md mb-6" style={{ height: '60vh', minHeight: '420px' }}>
         <FoodMap restaurants={restaurants} userCoords={coords} />
       </div>
 

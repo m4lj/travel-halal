@@ -1,35 +1,41 @@
 import { useState, useEffect } from 'react'
 
-const PRAYERS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']
+// Muslim Pro Scrapper uses 'Zuhr' (not 'Dhuhr'), no Sunrise
+const PRAYERS = ['Fajr', 'Zuhr', 'Asr', 'Maghrib', 'Isha']
 
-// Strip " (UTC)" suffix from Aladhan time strings
-function cleanTime(t) { return t?.split(' ')[0] ?? '00:00' }
+function timeToSeconds(timeStr) {
+  if (!timeStr) return 0
+  // Strip any trailing text like " (UTC)" just in case
+  const clean = timeStr.split(' ')[0]
+  const [h, m, s = 0] = clean.split(':').map(Number)
+  return h * 3600 + m * 60 + s
+}
 
-function timeToMinutes(timeStr) {
-  const [h, m] = cleanTime(timeStr).split(':').map(Number)
-  return h * 60 + m
+function nowInSeconds() {
+  const n = new Date()
+  return n.getHours() * 3600 + n.getMinutes() * 60 + n.getSeconds()
 }
 
 function getNextPrayer(times) {
-  const now = new Date()
-  const currentMinutes = now.getHours() * 60 + now.getMinutes()
+  const currentSec = nowInSeconds()
 
   for (const name of PRAYERS) {
-    const prayerMinutes = timeToMinutes(times[name])
-    if (prayerMinutes > currentMinutes) {
-      return { name, minutesLeft: prayerMinutes - currentMinutes }
+    const prayerSec = timeToSeconds(times[name])
+    if (prayerSec > currentSec) {
+      return { name, secondsLeft: prayerSec - currentSec }
     }
   }
   // Past Isha — next is Fajr tomorrow
-  const fajrMinutes = timeToMinutes(times['Fajr'])
-  return { name: 'Fajr', minutesLeft: (24 * 60 - currentMinutes) + fajrMinutes }
+  const fajrSec = timeToSeconds(times['Fajr'])
+  return { name: 'Fajr', secondsLeft: (24 * 3600 - currentSec) + fajrSec }
 }
 
 function formatCountdown(totalSeconds) {
-  const h = Math.floor(totalSeconds / 3600)
-  const m = Math.floor((totalSeconds % 3600) / 60)
-  const s = totalSeconds % 60
-  return [h, m, s].map(v => String(v).padStart(2, '0')).join(':')
+  const s = Math.max(0, totalSeconds)
+  const h = Math.floor(s / 3600)
+  const m = Math.floor((s % 3600) / 60)
+  const sec = s % 60
+  return [h, m, sec].map(v => String(v).padStart(2, '0')).join(':')
 }
 
 export default function Countdown({ times }) {
@@ -37,10 +43,7 @@ export default function Countdown({ times }) {
 
   useEffect(() => {
     function tick() {
-      const { name, minutesLeft } = getNextPrayer(times)
-      const now = new Date()
-      const secondsLeft = minutesLeft * 60 - now.getSeconds()
-      setNext({ name, secondsLeft: Math.max(0, secondsLeft) })
+      setNext(getNextPrayer(times))
     }
     tick()
     const id = setInterval(tick, 1000)

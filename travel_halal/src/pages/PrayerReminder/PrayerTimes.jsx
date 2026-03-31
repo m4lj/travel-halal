@@ -1,44 +1,45 @@
 import { useState, useEffect } from 'react'
 
-const PRAYER_ORDER = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']
+// Muslim Pro Scrapper: no Sunrise, uses 'Zuhr' not 'Dhuhr'
+const PRAYER_ORDER = ['Fajr', 'Zuhr', 'Asr', 'Maghrib', 'Isha']
 const ICONS = {
   Fajr:    '🌙',
-  Sunrise: '🌅',
-  Dhuhr:   '☀️',
+  Zuhr:    '☀️',
   Asr:     '🌤️',
   Maghrib: '🌇',
   Isha:    '⭐',
 }
-const PRAYERS_ONLY = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']
 
-function cleanTime(t) { return t?.split(' ')[0] ?? '--:--' }
-
-function timeToMinutes(timeStr) {
-  const [h, m] = cleanTime(timeStr).split(':').map(Number)
-  return h * 60 + m
+function timeToSeconds(timeStr) {
+  if (!timeStr) return 0
+  const clean = timeStr.split(' ')[0]
+  const [h, m, s = 0] = clean.split(':').map(Number)
+  return h * 3600 + m * 60 + s
 }
 
 function getCurrentAndNext(times) {
   const now = new Date()
-  const currentMinutes = now.getHours() * 60 + now.getMinutes()
+  const currentSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds()
 
-  let current = PRAYERS_ONLY[PRAYERS_ONLY.length - 1]
-  let next    = PRAYERS_ONLY[0]
+  let current = PRAYER_ORDER[PRAYER_ORDER.length - 1]
+  let next    = PRAYER_ORDER[0]
 
-  for (let i = 0; i < PRAYERS_ONLY.length; i++) {
-    const pMin = timeToMinutes(times[PRAYERS_ONLY[i]])
-    if (pMin > currentMinutes) {
-      next    = PRAYERS_ONLY[i]
-      current = PRAYERS_ONLY[i > 0 ? i - 1 : PRAYERS_ONLY.length - 1]
+  for (let i = 0; i < PRAYER_ORDER.length; i++) {
+    const pSec = timeToSeconds(times[PRAYER_ORDER[i]])
+    if (pSec > currentSec) {
+      next    = PRAYER_ORDER[i]
+      current = PRAYER_ORDER[i > 0 ? i - 1 : PRAYER_ORDER.length - 1]
       break
     }
   }
   return { current, next }
 }
 
-// Convert 24h "HH:mm" to 12h "h:mm AM/PM"
+// Convert 24h "HH:mm" or "HH:mm:ss" to 12h "h:mm AM/PM"
 function to12h(t) {
-  const [h, m] = cleanTime(t).split(':').map(Number)
+  if (!t) return '--:--'
+  const clean = t.split(' ')[0]
+  const [h, m] = clean.split(':').map(Number)
   const period = h >= 12 ? 'PM' : 'AM'
   const hour12 = h % 12 || 12
   return `${hour12}:${String(m).padStart(2, '0')} ${period}`
@@ -50,7 +51,7 @@ export default function PrayerTimes({ times }) {
   useEffect(() => {
     function update() { setHighlight(getCurrentAndNext(times)) }
     update()
-    const id = setInterval(update, 60000)
+    const id = setInterval(update, 1000)
     return () => clearInterval(id)
   }, [times])
 
