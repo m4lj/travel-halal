@@ -1,24 +1,26 @@
 import FoodCard from './FoodCard'
 
-export default function FoodList({ restaurants }) {
+export default function FoodList({ restaurants, onSelect }) {
   if (!restaurants.length) {
     return (
-      <div className="text-center py-8 text-gray-500 bg-white rounded-xl border border-gray-200 mb-6">
+      <div className="text-center py-8 text-gray-400 bg-white rounded-xl border border-gray-200 mb-4">
         <p className="text-4xl mb-3">🍽️</p>
-        <p className="font-medium">No halal-tagged restaurants found within 3 km.</p>
+        <p className="font-medium text-gray-600">No halal-tagged restaurants found within 3 km.</p>
         <p className="text-sm mt-1">OSM data may be sparse here. See featured spots below.</p>
       </div>
     )
   }
 
   return (
-    <div className="mb-8">
-      <h2 className="text-lg font-semibold text-gray-700 mb-3">
-        {restaurants.length} halal-tagged place{restaurants.length !== 1 ? 's' : ''} nearby
-        <span className="text-xs font-normal text-gray-400 ml-2">(self-reported)</span>
+    <div className="mb-6">
+      <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+        Nearby ({restaurants.length} found)
+        <span className="ml-1 normal-case font-normal text-gray-400">· self-reported</span>
       </h2>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {restaurants.map(r => <FoodCard key={r.id} restaurant={r} />)}
+      <div className="flex flex-col gap-2">
+        {restaurants.map(r => (
+          <FoodCard key={r.id} restaurant={r} onSelect={onSelect} />
+        ))}
       </div>
     </div>
   )
