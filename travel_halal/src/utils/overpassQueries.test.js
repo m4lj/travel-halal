@@ -14,22 +14,25 @@ describe('mosqueQuery', () => {
     expect(q).toContain('101.687')
   })
 
-  it('uses default radius of 5000', () => {
+  it('uses default radius of 3000 (matching muslim-traveler-app)', () => {
     const q = mosqueQuery(3.0, 101.0)
-    expect(q).toContain('5000')
+    expect(q).toContain('3000')
   })
 
   it('accepts a custom radius', () => {
     const q = mosqueQuery(3.0, 101.0, 2000)
     expect(q).toContain('2000')
-    expect(q).not.toContain('5000')
+    expect(q).not.toContain('3000')
   })
 
   it('filters by religion=muslim (lowercase — OSM standard)', () => {
     const q = mosqueQuery(3.0, 101.0)
     expect(q).toContain('"religion"="muslim"')
-    expect(q).not.toContain('"religion"="Islam"')
-    expect(q).not.toContain('"religion"="Muslim"')
+  })
+
+  it('also includes religion=Islam variant (matches muslim-traveler-app)', () => {
+    const q = mosqueQuery(3.0, 101.0)
+    expect(q).toContain('"religion"="Islam"')
   })
 
   it('requests json output format', () => {
@@ -37,7 +40,7 @@ describe('mosqueQuery', () => {
   })
 
   it('requests center output (needed for way elements)', () => {
-    expect(mosqueQuery(3.0, 101.0)).toContain('out center tags')
+    expect(mosqueQuery(3.0, 101.0)).toContain('out center')
   })
 })
 

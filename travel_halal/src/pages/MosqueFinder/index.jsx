@@ -37,8 +37,8 @@ export default function MosqueFinder() {
     if (loading) return { type: 'loading', text: 'Finding nearby mosques…' }
     if (error)   return { type: 'error',   text: error }
     if (mosques.length > 0)
-      return { type: 'success', text: `Found ${mosques.length} mosque${mosques.length !== 1 ? 's' : ''} within 5 km` }
-    return { type: 'info', text: 'No mosques found within 5 km of your location.' }
+      return { type: 'success', text: `Found ${mosques.length} mosque${mosques.length !== 1 ? 's' : ''} within 3 km` }
+    return { type: 'info', text: 'No mosques found within 3 km of your location.' }
   }
   const status = statusBanner()
 
@@ -49,7 +49,7 @@ export default function MosqueFinder() {
           🕌 Mosque Finder
         </h1>
         <p className="text-gray-500 text-xs mt-0.5">
-          Mosques within 5 km · Data from OpenStreetMap
+          Mosques within 3 km · Data from OpenStreetMap
         </p>
       </div>
 

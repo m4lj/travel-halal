@@ -6,7 +6,7 @@ export default function MosqueList({ mosques, onSelect }) {
     return (
       <div className="text-center py-10 text-gray-400">
         <p className="text-4xl mb-3">🕌</p>
-        <p className="font-medium text-gray-600">No mosques found within 5 km.</p>
+        <p className="font-medium text-gray-600">No mosques found within 3 km.</p>
         <p className="text-sm mt-1">Try moving to a different area or check your connection.</p>
       </div>
     )
@@ -18,7 +18,7 @@ export default function MosqueList({ mosques, onSelect }) {
         Nearby ({mosques.length} found)
       </h2>
       <div className="flex flex-col gap-2">
-        {mosques.map(m => {
+        {mosques.slice(0, 8).map(m => {
           const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lon}`
           return (
             <div
